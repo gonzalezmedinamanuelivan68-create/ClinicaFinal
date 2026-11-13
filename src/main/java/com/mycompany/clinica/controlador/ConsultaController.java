@@ -21,7 +21,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 /**
  * FXML Controller class
  *
- * @author Usuario
+ * @author Gonzalez Medina Manuel Ivan
  */
 public class ConsultaController implements Initializable {
 
