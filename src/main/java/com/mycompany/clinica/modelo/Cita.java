@@ -31,11 +31,11 @@ public class Cita {
     public int getIdCita() { return idCita; }
     public void setIdCita(int idCita) { this.idCita = idCita; }
 
-    public Paciente getPaciente() { return paciente; }
-    public void setPaciente(Paciente paciente) { this.paciente = paciente; }
+    public Paciente getIdPaciente() { return paciente; }
+    public void setIdPaciente(Paciente paciente) { this.paciente = paciente; }
 
-    public Doctor getDoctor() { return doctor; }
-    public void setDoctor(Doctor doctor) { this.doctor = doctor; }
+    public Doctor getIdDoctor() { return doctor; }
+    public void setIdDoctor(Doctor doctor) { this.doctor = doctor; }
 
     public String getFecha() { return fecha; }
     public void setFecha(String fecha) { this.fecha = fecha; }
