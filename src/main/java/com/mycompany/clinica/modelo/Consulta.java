@@ -10,7 +10,7 @@ package com.mycompany.clinica.modelo;
  */
 public class Consulta {
     private int idConsulta;
-    private Cita cita;
+    private Cita idcita;
     private String diagnostico;
     private String tratamiento;
     private String notas;
@@ -18,9 +18,9 @@ public class Consulta {
     public Consulta() {
     }
 
-    public Consulta(int idConsulta, Cita cita, String diagnostico, String tratamiento, String notas) {
+    public Consulta(int idConsulta, Cita idcita, String diagnostico, String tratamiento, String notas) {
         this.idConsulta = idConsulta;
-        this.cita = cita;
+        this.idcita = idcita;
         this.diagnostico = diagnostico;
         this.tratamiento = tratamiento;
         this.notas = notas;
@@ -29,8 +29,8 @@ public class Consulta {
     public int getIdConsulta() { return idConsulta; }
     public void setIdConsulta(int idConsulta) { this.idConsulta = idConsulta; }
 
-    public Cita getCita() { return cita; }
-    public void setCita(Cita cita) { this.cita = cita; }
+    public Cita getIdCita() { return idcita; }
+    public void setIdCita(Cita idcita) { this.idcita = idcita; }
 
     public String getDiagnostico() { return diagnostico; }
     public void setDiagnostico(String diagnostico) { this.diagnostico = diagnostico; }
