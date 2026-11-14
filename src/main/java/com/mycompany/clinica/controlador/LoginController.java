@@ -16,6 +16,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
 public class LoginController implements Initializable {
@@ -29,7 +30,11 @@ public class LoginController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         if (txtPassword != null) {
-            txtPassword.setOnAction(this::btnIniciarSesionOnAction);
+            txtPassword.setOnKeyPressed(event -> {
+                if (event.getCode() == KeyCode.ENTER) {
+                    btnIniciarSesionOnAction(null);
+                }
+            });
         }
     }
 
@@ -60,7 +65,6 @@ public class LoginController implements Initializable {
 
     private void abrirDashboard() {
         try {
-            
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/mycompany/clinica/MainDashboard.fxml"));
             Parent root = loader.load();
 
@@ -70,7 +74,6 @@ public class LoginController implements Initializable {
             stage.setMaximized(true);
             stage.show();
 
-            
             Stage loginStage = (Stage) txtUsuario.getScene().getWindow();
             loginStage.close();
 
