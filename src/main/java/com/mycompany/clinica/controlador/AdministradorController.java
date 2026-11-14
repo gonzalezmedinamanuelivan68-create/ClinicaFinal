@@ -97,7 +97,7 @@ public class AdministradorController implements Initializable {
 
     @FXML
     private void btnGuardarOnAction(ActionEvent event) {
-   // 1. Crear el objeto con los datos del formulario
+   
     Administrador admin = new Administrador();
     admin.setNombres(txtNombres.getText());
     admin.setNumero(txtNumero.getText());
@@ -109,22 +109,22 @@ public class AdministradorController implements Initializable {
     admin.setEstado(cmbEstado.getValue());
     admin.setRutaImagen(txtRutaImagen.getText());
 
-    // 2. Enviar a MySQL usando el DAO
+   
     AdministradorDAO dao = new AdministradorDAO();
-    boolean exito = dao.guardar(admin); // Asegúrate de tener este método en tu DAO
+    boolean exito = dao.guardar(admin);
 
     if (exito) {
         Alert alerta = new Alert(Alert.AlertType.INFORMATION);
         alerta.setTitle("Éxito");
         alerta.setHeaderText(null);
-        alerta.setContentText("Administrador guardado correctamente en la base de datos.");
+        alerta.setContentText("Guardado correctamente");
         alerta.showAndWait();
      
     } else {
         Alert alerta = new Alert(Alert.AlertType.ERROR);
         alerta.setTitle("Error");
         alerta.setHeaderText(null);
-        alerta.setContentText("No se pudo guardar en la base de datos. Revisa la conexión o campos duplicados (como el usuario).");
+        alerta.setContentText("No se pudo guardar. Revisa la conexión o campos duplicados (como el usuario).");
         alerta.showAndWait();
         }
     }
