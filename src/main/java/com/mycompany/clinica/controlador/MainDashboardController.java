@@ -22,10 +22,9 @@ import javafx.stage.Stage;
 
 public class MainDashboardController implements Initializable {
 
-    
     @FXML private Pane panelPrincipal;
 
- 
+
     @FXML private Button btnAdministradores;
     @FXML private Button btnDoctores;
     @FXML private Button btnPacientes;
@@ -37,7 +36,6 @@ public class MainDashboardController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
         if (btnAdministradores != null) btnAdministradores.setOnAction(this::btnAdministradoresOnAction);
         if (btnDoctores != null) btnDoctores.setOnAction(this::btnDoctoresOnAction);
         if (btnPacientes != null) btnPacientes.setOnAction(this::btnPacientesOnAction);
@@ -45,17 +43,16 @@ public class MainDashboardController implements Initializable {
         if (btnConsultas != null) btnConsultas.setOnAction(this::btnConsultasOnAction);
         if (btnCerrarSesion != null) btnCerrarSesion.setOnAction(this::btnCerrarSesionOnAction);
 
-        
+ 
         aplicarPermisos();
 
-        
         Administrador usuario = Sesion.getUsuarioActual();
         if (usuario != null && lblUsuarioActual != null) {
             lblUsuarioActual.setText(usuario.getNombres() + " [" + usuario.getRol() + "]");
         }
 
        
- 
+        cargarVista("/com/mycompany/clinica/vista/Cita.fxml");
     }
 
     private void aplicarPermisos() {
@@ -68,6 +65,7 @@ public class MainDashboardController implements Initializable {
 
         switch (rol) {
             case ADMINISTRADOR:
+
                 configurarBoton(btnAdministradores, true);
                 configurarBoton(btnDoctores, true);
                 configurarBoton(btnPacientes, true);
@@ -98,8 +96,6 @@ public class MainDashboardController implements Initializable {
             boton.setDisable(!permitido);
         }
     }
-
-   
 
     @FXML
     private void btnAdministradoresOnAction(ActionEvent event) {
@@ -137,8 +133,6 @@ public class MainDashboardController implements Initializable {
             loginStage.setTitle("Iniciar Sesión - Clínica");
             loginStage.setScene(new Scene(root));
             loginStage.show();
-
-           
             Stage dashboardStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             dashboardStage.close();
 
