@@ -103,7 +103,7 @@ public class AdministradorDAO {
                 } catch (Exception e) {
                     System.err.println("Rol no reconocido en BD: " + rs.getString("rol"));
                     
-                    admin.setRol(ERoles.ADMINISTRADORES); 
+                    admin.setRol(ERoles.ADMINISTRADOR); 
                 }
                 
                 try {
