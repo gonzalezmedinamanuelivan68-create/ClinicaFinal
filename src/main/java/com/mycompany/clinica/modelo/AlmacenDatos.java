@@ -4,14 +4,14 @@
  */
 package com.mycompany.clinica.modelo;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+//import javafx.collections.FXCollections;
+//import javafx.collections.ObservableList;
 
 /**
  *
  * @author Usuario
  */
-
+/*
 public class AlmacenDatos {
     
     private static AlmacenDatos instancia;
