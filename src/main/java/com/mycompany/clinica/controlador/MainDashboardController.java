@@ -87,27 +87,27 @@ public class MainDashboardController implements Initializable {
 
     @FXML
     private void btnAdministradoresOnAction(ActionEvent event) {
-        cargarVista("/com/mycompany/clinica/Administrador.fxml");
+        cargarVista("/com/mycompany/clinica/vistas/Administrador.fxml");
     }
 
     @FXML
     private void btnDoctoresOnAction(ActionEvent event) {
-        cargarVista("/com/mycompany/clinica/Doctor.fxml");
+        cargarVista("/com/mycompany/clinica/vistas/Doctor.fxml");
     }
 
     @FXML
     private void btnPacientesOnAction(ActionEvent event) {
-        cargarVista("/com/mycompany/clinica/Paciente.fxml");
+        cargarVista("/com/mycompany/clinica/vistas/Paciente.fxml");
     }
 
     @FXML
     private void btnCitasOnAction(ActionEvent event) {
-        cargarVista("/com/mycompany/clinica/Cita.fxml");
+        cargarVista("/com/mycompany/clinica/vistas/Cita.fxml");
     }
 
     @FXML
     private void btnConsultasOnAction(ActionEvent event) {
-        cargarVista("/com/mycompany/clinica/Consulta.fxml");
+        cargarVista("/com/mycompany/clinica/vistas/Consulta.fxml");
     }
 
     @FXML
