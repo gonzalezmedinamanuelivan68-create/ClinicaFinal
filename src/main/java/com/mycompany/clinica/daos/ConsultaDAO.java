@@ -1,6 +1,7 @@
 package com.mycompany.clinica.daos;
 
 import com.mycompany.clinica.config.Conexion;
+import com.mycompany.clinica.modelo.Cita;
 import com.mycompany.clinica.modelo.Consulta;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,7 +17,7 @@ public class ConsultaDAO {
         try (Connection con = Conexion.conectar()) {
             if (con == null) return false;
             try (PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setInt(1, consulta.getIdCita());
+                ps.setInt(1, consulta.getIdCita().getIdCita());
                 ps.setString(2, consulta.getDiagnostico());
                 ps.setString(3, consulta.getTratamiento());
                 ps.setString(4, consulta.getNotas());
@@ -30,15 +31,22 @@ public class ConsultaDAO {
 
     public ObservableList<Consulta> obtenerTodos() {
         ObservableList<Consulta> lista = FXCollections.observableArrayList();
-        String sql = "SELECT * FROM consultas";
+        String sql = "SELECT co.*, ci.fecha, ci.hora FROM consultas co " +
+                     "INNER JOIN citas ci ON co.id_cita = ci.id_cita";
+                     
         try (Connection con = Conexion.conectar()) {
             if (con == null) return lista;
             try (PreparedStatement ps = con.prepareStatement(sql);
                  ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
+                    Cita cita = new Cita();
+                    cita.setIdCita(rs.getInt("id_cita"));
+                    cita.setFecha(rs.getString("fecha"));
+                    cita.setHora(rs.getString("hora"));
+
                     Consulta c = new Consulta();
                     c.setIdConsulta(rs.getInt("id_consulta"));
-                    c.setIdCita(rs.getInt("id_cita"));
+                    c.setIdCita(cita);
                     c.setDiagnostico(rs.getString("diagnostico"));
                     c.setTratamiento(rs.getString("tratamiento"));
                     c.setNotas(rs.getString("notas"));
