@@ -47,7 +47,7 @@ public class Cita {
     public void setEstado(String estado) { this.estado = estado; }
     @Override
     public String toString() {
-    return "Cita: " + idpaciente.getNombre() + " - " + fecha + " " + hora;
+    return "Cita: " + idpaciente.getNombre() + iddoctor.getNombre()+ " - " + fecha + " " + hora;
     }
 }
 
