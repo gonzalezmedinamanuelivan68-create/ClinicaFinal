@@ -10,8 +10,8 @@ package com.mycompany.clinica.modelo;
  */
 public class Cita {
     private int idCita;
-    private Paciente paciente;
-    private Doctor doctor;
+    private Paciente idpaciente;
+    private Doctor iddoctor;
     private String fecha; 
     private String hora; 
     private String estado; 
@@ -21,8 +21,8 @@ public class Cita {
 
     public Cita(int idCita, Paciente paciente, Doctor doctor, String fecha, String hora, String estado) {
         this.idCita = idCita;
-        this.paciente = paciente;
-        this.doctor = doctor;
+        this.idpaciente = paciente;
+        this.iddoctor = doctor;
         this.fecha = fecha;
         this.hora = hora;
         this.estado = estado;
@@ -31,11 +31,11 @@ public class Cita {
     public int getIdCita() { return idCita; }
     public void setIdCita(int idCita) { this.idCita = idCita; }
 
-    public Paciente getIdPaciente() { return paciente; }
-    public void setIdPaciente(Paciente paciente) { this.paciente = paciente; }
+    public Paciente getIdPaciente() { return idpaciente; }
+    public void setIdPaciente(Paciente idpaciente) { this.idpaciente = idpaciente; }
 
-    public Doctor getIdDoctor() { return doctor; }
-    public void setIdDoctor(Doctor doctor) { this.doctor = doctor; }
+    public Doctor getIdDoctor() { return iddoctor; }
+    public void setIdDoctor(Doctor iddoctor) { this.iddoctor = iddoctor; }
 
     public String getFecha() { return fecha; }
     public void setFecha(String fecha) { this.fecha = fecha; }
@@ -47,7 +47,7 @@ public class Cita {
     public void setEstado(String estado) { this.estado = estado; }
     @Override
     public String toString() {
-    return "Cita: " + paciente.getNombre() + " - " + fecha + " " + hora;
+    return "Cita: " + idpaciente.getNombre() + " - " + fecha + " " + hora;
     }
 }
 
