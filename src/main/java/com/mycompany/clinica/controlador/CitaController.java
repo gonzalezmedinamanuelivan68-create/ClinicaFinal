@@ -1,18 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
- */
 package com.mycompany.clinica.controlador;
 
-import com.mycompany.clinica.modelo.AlmacenDatos;
+import com.mycompany.clinica.daos.CitaDAO;
+import com.mycompany.clinica.daos.DoctorDAO;
+import com.mycompany.clinica.daos.PacienteDAO;
 import com.mycompany.clinica.modelo.Cita;
 import com.mycompany.clinica.modelo.Doctor;
 import com.mycompany.clinica.modelo.Paciente;
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -24,99 +20,82 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-/**
- * FXML Controller class
- *
- * @author Usuario
- */
 public class CitaController implements Initializable {
 
-  @FXML private ComboBox<Paciente> cmbPaciente;
+    @FXML private ComboBox<Paciente> cmbPaciente;
     @FXML private ComboBox<Doctor> cmbDoctor;
     @FXML private DatePicker dpFecha;
     @FXML private TextField txtHora;
-    @FXML private ComboBox<String> cmbEstado;
 
     @FXML private Button btnGuardar;
     @FXML private Button btnLimpiar;
-    @FXML private Button btnEliminar;
 
     @FXML private TableView<Cita> tablaCitas;
     @FXML private TableColumn<Cita, Integer> colId;
-    @FXML private TableColumn<Cita, Paciente> colPaciente;
-    @FXML private TableColumn<Cita, Doctor> colDoctor;
-    @FXML private TableColumn<Cita, String> colFecha;
+    @FXML private TableColumn<Cita, Integer> colPaciente;
+    @FXML private TableColumn<Cita, Integer> colDoctor;
+    @FXML private TableColumn<Cita, LocalDate> colFecha;
     @FXML private TableColumn<Cita, String> colHora;
     @FXML private TableColumn<Cita, String> colEstado;
 
+    private final CitaDAO citaDAO = new CitaDAO();
+    private final PacienteDAO pacienteDAO = new PacienteDAO();
+    private final DoctorDAO doctorDAO = new DoctorDAO();
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // 1. Configurar las columnas de la tabla
         colId.setCellValueFactory(new PropertyValueFactory<>("idCita"));
-        colPaciente.setCellValueFactory(new PropertyValueFactory<>("paciente"));
-        colDoctor.setCellValueFactory(new PropertyValueFactory<>("doctor"));
+        colPaciente.setCellValueFactory(new PropertyValueFactory<>("idPaciente"));
+        colDoctor.setCellValueFactory(new PropertyValueFactory<>("idDoctor"));
         colFecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         colHora.setCellValueFactory(new PropertyValueFactory<>("hora"));
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
 
-        // 2. Llenar los ComboBox con los datos en memoria
-        cmbPaciente.setItems(AlmacenDatos.getInstancia().getPacientes());
-        cmbDoctor.setItems(AlmacenDatos.getInstancia().getDoctores());
-        
-        // 3. Llenar el ComboBox de estados con opciones estáticas
-        cmbEstado.setItems(FXCollections.observableArrayList("Pendiente", "Completada", "Cancelada"));
+        cargarCombos();
+        actualizarTabla();
 
-        // 4. Conectar la tabla de citas
-        tablaCitas.setItems(AlmacenDatos.getInstancia().getCitas());
-
-        // 5. Asignar acciones a los botones
         btnGuardar.setOnAction(e -> guardarCita());
         btnLimpiar.setOnAction(e -> limpiarCampos());
-        btnEliminar.setOnAction(e -> eliminarCita());
+    }
+
+    private void cargarCombos() {
+        cmbPaciente.setItems(pacienteDAO.obtenerTodos());
+        cmbDoctor.setItems(doctorDAO.obtenerTodos());
     }
 
     private void guardarCita() {
-        Paciente pacienteSelec = cmbPaciente.getValue();
-        Doctor doctorSelec = cmbDoctor.getValue();
-        LocalDate fechaSeleccionada = dpFecha.getValue();
-        String hora = txtHora.getText();
-        String estado = cmbEstado.getValue();
-
-        // Validar que no haya campos vacíos
-        if (pacienteSelec == null || doctorSelec == null || fechaSeleccionada == null || hora.isEmpty() || estado == null) {
-            mostrarAlerta("Campos incompletos", "Por favor, selecciona todos los datos requeridos para la cita.", Alert.AlertType.WARNING);
+        if (cmbPaciente.getValue() == null || cmbDoctor.getValue() == null || 
+            dpFecha.getValue() == null || txtHora.getText().trim().isEmpty()) {
+            mostrarAlerta("Campos incompletos", "Selecciona paciente, doctor, fecha y hora.", Alert.AlertType.WARNING);
             return;
         }
 
-        // Formatear la fecha a texto (YYYY-MM-DD)
-        String fechaStr = fechaSeleccionada.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        Cita cita = new Cita();
+        cita.setIdPaciente(cmbPaciente.getValue().getIdPaciente());
+        cita.setIdDoctor(cmbDoctor.getValue().getIdDoctor());
+        cita.setFecha(dpFecha.getValue());
+        cita.setHora(txtHora.getText().trim());
+        cita.setEstado("Pendiente");
 
-        // Crear la nueva cita y guardarla
-        int id = AlmacenDatos.getInstancia().getSiguienteIdCita();
-        Cita nuevaCita = new Cita(id, pacienteSelec, doctorSelec, fechaStr, hora, estado);
+        if (citaDAO.guardar(cita)) {
+            actualizarTabla();
+            limpiarCampos();
+            mostrarAlerta("Cita Agendada", "La cita se registró correctamente en la base de datos.", Alert.AlertType.INFORMATION);
+        } else {
+            mostrarAlerta("Error", "No se pudo registrar la cita.", Alert.AlertType.ERROR);
+        }
+    }
 
-        AlmacenDatos.getInstancia().getCitas().add(nuevaCita);
-
-        limpiarCampos();
-        mostrarAlerta("Cita programada", "La cita se ha guardado exitosamente.", Alert.AlertType.INFORMATION);
+    private void actualizarTabla() {
+        tablaCitas.setItems(citaDAO.obtenerTodos());
     }
 
     private void limpiarCampos() {
-        cmbPaciente.getSelectionModel().clearSelection();
-        cmbDoctor.getSelectionModel().clearSelection();
+        cmbPaciente.setValue(null);
+        cmbDoctor.setValue(null);
         dpFecha.setValue(null);
         txtHora.clear();
-        cmbEstado.getSelectionModel().clearSelection();
-    }
-
-    private void eliminarCita() {
-        Cita seleccionada = tablaCitas.getSelectionModel().getSelectedItem();
-        if (seleccionada != null) {
-            AlmacenDatos.getInstancia().getCitas().remove(seleccionada);
-            mostrarAlerta("Cita eliminada", "La cita ha sido removida del sistema.", Alert.AlertType.INFORMATION);
-        } else {
-            mostrarAlerta("Selección requerida", "Selecciona una cita en la tabla para eliminarla.", Alert.AlertType.WARNING);
-        }
+        tablaCitas.getSelectionModel().clearSelection();
     }
 
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
@@ -127,4 +106,3 @@ public class CitaController implements Initializable {
         alerta.showAndWait();
     }
 }
-
