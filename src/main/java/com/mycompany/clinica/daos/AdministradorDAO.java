@@ -12,6 +12,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AdministradorDAO {
+    public Administrador login(String usuario, String password) {
+        String sql = "SELECT * FROM administradores WHERE usuario = ? AND password = ? AND estado = 'ACTIVO'";
+        
+        try (Connection con = Conexion.conectar()) {
+            if (con == null) return null;
+            
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, usuario);
+                ps.setString(2, password);
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        Administrador admin = new Administrador();
+                        admin.setId(rs.getInt("id"));
+                        admin.setNombres(rs.getString("nombre"));
+                        admin.setUsuario(rs.getString("usuario"));
+                        admin.setRol(ERoles.valueOf(rs.getString("rol").toUpperCase()));
+                        admin.setEstado(EEstados.valueOf(rs.getString("estado").toUpperCase()));
+                        return admin;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error en login: " + e.getMessage());
+        }
+        return null;
+    }
 
     public boolean guardar(Administrador admin) {
         String sql = "INSERT INTO administradores (nombre, telefono, email, direccion, usuario, password, rol, estado, ruta_foto) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
