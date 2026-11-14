@@ -23,7 +23,7 @@ public class LoginController implements Initializable {
 
     @FXML private TextField txtUsuario;
     @FXML private TextInputControl txtContraseña; 
-    @FXML private Button btnIngresar;
+    @FXML private Button btnIniciarSesion;
 
     private final AdministradorDAO administradorDAO = new AdministradorDAO();
 
@@ -32,14 +32,14 @@ public class LoginController implements Initializable {
         if (txtContraseña != null) {
             txtContraseña.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.ENTER) {
-                    btnIniciarSesionOnAction(null);
+                    btnIniciarSesion(null);
                 }
             });
         }
     }
 
     @FXML
-    private void btnIniciarSesionOnAction(ActionEvent event) {
+    private void btnIniciarSesion(ActionEvent event) {
         String usuario = txtUsuario.getText().trim();
         String password = txtContraseña.getText().trim();
 
