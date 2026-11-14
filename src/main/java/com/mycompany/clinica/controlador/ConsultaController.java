@@ -28,7 +28,7 @@ public class ConsultaController implements Initializable {
 
     @FXML private TableView<Consulta> tablaConsultas;
     @FXML private TableColumn<Consulta, Integer> colId;
-    @FXML private TableColumn<Consulta, Integer> colCita;
+    @FXML private TableColumn<Consulta, Cita> colCita;
     @FXML private TableColumn<Consulta, String> colDiagnostico;
     @FXML private TableColumn<Consulta, String> colTratamiento;
     @FXML private TableColumn<Consulta, String> colNotas;
@@ -39,7 +39,7 @@ public class ConsultaController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         colId.setCellValueFactory(new PropertyValueFactory<>("idConsulta"));
-        colCita.setCellValueFactory(new PropertyValueFactory<>("idCita"));
+        colCita.setCellValueFactory(new PropertyValueFactory<>("cita"));
         colDiagnostico.setCellValueFactory(new PropertyValueFactory<>("diagnostico"));
         colTratamiento.setCellValueFactory(new PropertyValueFactory<>("tratamiento"));
         colNotas.setCellValueFactory(new PropertyValueFactory<>("notas"));
@@ -59,7 +59,7 @@ public class ConsultaController implements Initializable {
         }
 
         Consulta consulta = new Consulta();
-        consulta.setIdCita(cmbCita.getValue().getIdCita());
+        consulta.setIdCita(cmbCita.getValue());
         consulta.setDiagnostico(txtDiagnostico.getText().trim());
         consulta.setTratamiento(txtTratamiento.getText().trim());
         consulta.setNotas(txtNotas.getText().trim());
