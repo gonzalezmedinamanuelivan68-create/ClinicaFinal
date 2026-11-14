@@ -11,7 +11,7 @@ package com.mycompany.clinica.modelo;
  *
  * @author Usuario
  */
-/*
+/**
 public class AlmacenDatos {
     
     private static AlmacenDatos instancia;
@@ -59,4 +59,5 @@ public class AlmacenDatos {
         return contadorConsultas++;
     }
 }
+**/
 
