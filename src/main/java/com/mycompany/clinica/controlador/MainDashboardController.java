@@ -10,19 +10,22 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class MainDashboardController implements Initializable {
 
     
-    @FXML private BorderPane panelPrincipal;
+    @FXML private Pane panelPrincipal;
 
+ 
     @FXML private Button btnAdministradores;
     @FXML private Button btnDoctores;
     @FXML private Button btnPacientes;
@@ -34,13 +37,25 @@ public class MainDashboardController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        
+        if (btnAdministradores != null) btnAdministradores.setOnAction(this::btnAdministradoresOnAction);
+        if (btnDoctores != null) btnDoctores.setOnAction(this::btnDoctoresOnAction);
+        if (btnPacientes != null) btnPacientes.setOnAction(this::btnPacientesOnAction);
+        if (btnCitas != null) btnCitas.setOnAction(this::btnCitasOnAction);
+        if (btnConsultas != null) btnConsultas.setOnAction(this::btnConsultasOnAction);
+        if (btnCerrarSesion != null) btnCerrarSesion.setOnAction(this::btnCerrarSesionOnAction);
+
+        
         aplicarPermisos();
 
+        
         Administrador usuario = Sesion.getUsuarioActual();
         if (usuario != null && lblUsuarioActual != null) {
             lblUsuarioActual.setText(usuario.getNombres() + " [" + usuario.getRol() + "]");
         }
 
+       
+ 
     }
 
     private void aplicarPermisos() {
@@ -84,34 +99,35 @@ public class MainDashboardController implements Initializable {
         }
     }
 
+   
 
     @FXML
-    private void btnAdministradores(ActionEvent event) {
+    private void btnAdministradoresOnAction(ActionEvent event) {
         cargarVista("/com/mycompany/clinica/vistas/Administrador.fxml");
     }
 
     @FXML
-    private void btnDoctores(ActionEvent event) {
+    private void btnDoctoresOnAction(ActionEvent event) {
         cargarVista("/com/mycompany/clinica/vistas/Doctor.fxml");
     }
 
     @FXML
-    private void btnPacientes(ActionEvent event) {
+    private void btnPacientesOnAction(ActionEvent event) {
         cargarVista("/com/mycompany/clinica/vistas/Paciente.fxml");
     }
 
     @FXML
-    private void btnCitas(ActionEvent event) {
+    private void btnCitasOnAction(ActionEvent event) {
         cargarVista("/com/mycompany/clinica/vistas/Cita.fxml");
     }
 
     @FXML
-    private void btnConsultas(ActionEvent event) {
+    private void btnConsultasOnAction(ActionEvent event) {
         cargarVista("/com/mycompany/clinica/vistas/Consulta.fxml");
     }
 
     @FXML
-    private void btnCerrarSesion(ActionEvent event) {
+    private void btnCerrarSesionOnAction(ActionEvent event) {
         Sesion.cerrarSesion();
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/mycompany/clinica/vistas/Login.fxml"));
@@ -121,8 +137,9 @@ public class MainDashboardController implements Initializable {
             loginStage.setTitle("Iniciar Sesión - Clínica");
             loginStage.setScene(new Scene(root));
             loginStage.show();
-            
-            Stage dashboardStage = (Stage) btnCitas.getScene().getWindow();
+
+           
+            Stage dashboardStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             dashboardStage.close();
 
         } catch (IOException e) {
@@ -132,15 +149,24 @@ public class MainDashboardController implements Initializable {
 
     private void cargarVista(String rutaFxml) {
         if (panelPrincipal == null) {
-            System.err.println("Error: 'panelPrincipal' es null. Verifica su fx:id en MainDashboard.fxml");
+            System.err.println("ERROR: 'panelPrincipal' es null. Revisa el fx:id del contenedor central en MainDashboard.fxml");
             return;
         }
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(rutaFxml));
-            Parent vista = loader.load();
-            panelPrincipal.setCenter(vista);
+            URL recurso = getClass().getResource(rutaFxml);
+            if (recurso == null) {
+                System.err.println("ERROR: No se encontró el archivo FXML en la ruta: " + rutaFxml);
+                return;
+            }
+            Parent vista = FXMLLoader.load(recurso);
+            
+            if (panelPrincipal instanceof BorderPane) {
+                ((BorderPane) panelPrincipal).setCenter(vista);
+            } else {
+                panelPrincipal.getChildren().setAll(vista);
+            }
         } catch (IOException e) {
-            System.err.println("No se pudo cargar la vista: " + rutaFxml);
+            System.err.println("Error al cargar la vista: " + rutaFxml);
             e.printStackTrace();
             Alert alerta = new Alert(Alert.AlertType.ERROR);
             alerta.setTitle("Error de Navegación");
