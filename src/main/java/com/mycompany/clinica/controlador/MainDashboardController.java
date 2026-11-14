@@ -1,9 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
- */
 package com.mycompany.clinica.controlador;
 
+import com.mycompany.clinica.config.Sesion;
+import com.mycompany.clinica.modelos.Administrador;
+import com.mycompany.clinica.modelos.ERoles;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -14,88 +14,139 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class MainDashboardController implements Initializable {
 
-    @FXML private Button btnPacientes;
+    
+    @FXML private BorderPane panelPrincipal;
+
+    @FXML private Button btnAdministradores;
     @FXML private Button btnDoctores;
+    @FXML private Button btnPacientes;
     @FXML private Button btnCitas;
     @FXML private Button btnConsultas;
-    @FXML private Button btnAdministradores;
-    @FXML private Button btnBaseDatos;
     @FXML private Button btnCerrarSesion;
-    
-    @FXML private StackPane contenedorPrincipal;
 
-    private final String RUTA_VISTAS = "/com/mycompany/clinica/vistas/";
+    @FXML private Label lblUsuarioActual;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
- 
-        if (btnPacientes != null) btnPacientes.setOnAction(e -> cargarVista("Paciente.fxml"));
-        if (btnDoctores != null) btnDoctores.setOnAction(e -> cargarVista("Doctor.fxml"));
-        if (btnCitas != null) btnCitas.setOnAction(e -> cargarVista("Cita.fxml"));
-        if (btnConsultas != null) btnConsultas.setOnAction(e -> cargarVista("Consulta.fxml"));
-        if (btnBaseDatos != null) btnBaseDatos.setOnAction(e -> cargarVista("ConfiguracionDB.fxml"));
-        if (btnAdministradores != null) btnAdministradores.setOnAction(e -> cargarVista("Administrador.fxml"));
-        if (btnCerrarSesion != null) btnCerrarSesion.setOnAction(this::cerrarSesion);
-    }    
+        aplicarPermisos();
 
-    private void cargarVista(String archivoFxml) {
-        try {
-            URL ruta = getClass().getResource(RUTA_VISTAS + archivoFxml);
-            
-            if (ruta == null) {
-                mostrarAlerta("Error de Ruta", "No se encontró el archivo FXML: " + RUTA_VISTAS + archivoFxml, Alert.AlertType.ERROR);
-                return;
-            }
-            
-            Parent vista = FXMLLoader.load(ruta);
-            
-            
-            contenedorPrincipal.getChildren().clear();
-            contenedorPrincipal.getChildren().add(vista);
-            
-        } catch (Exception ex) {
-            mostrarAlerta("Error de Carga", "El archivo " + archivoFxml + " falló al cargar.\nRevisa que su controlador exista y esté bien escrito.", Alert.AlertType.ERROR);
-            ex.printStackTrace();
+        Administrador usuario = Sesion.getUsuarioActual();
+        if (usuario != null && lblUsuarioActual != null) {
+            lblUsuarioActual.setText(usuario.getNombres() + " [" + usuario.getRol() + "]");
+        }
+
+    }
+
+    private void aplicarPermisos() {
+        Administrador usuario = Sesion.getUsuarioActual();
+        if (usuario == null || usuario.getRol() == null) {
+            return;
+        }
+
+        ERoles rol = usuario.getRol();
+
+        switch (rol) {
+            case ADMINISTRADOR:
+                configurarBoton(btnAdministradores, true);
+                configurarBoton(btnDoctores, true);
+                configurarBoton(btnPacientes, true);
+                configurarBoton(btnCitas, true);
+                configurarBoton(btnConsultas, true);
+                break;
+
+            case RECEPCIONISTA:
+                configurarBoton(btnAdministradores, false);
+                configurarBoton(btnDoctores, false);
+                configurarBoton(btnPacientes, true);
+                configurarBoton(btnCitas, true);
+                configurarBoton(btnConsultas, false);
+                break;
+
+            case DOCTOR:
+                configurarBoton(btnAdministradores, false);
+                configurarBoton(btnDoctores, false);
+                configurarBoton(btnPacientes, false);
+                configurarBoton(btnCitas, true);
+                configurarBoton(btnConsultas, true);
+                break;
         }
     }
 
-    private void cerrarSesion(ActionEvent event) {
-        try {
-            URL rutaLogin = getClass().getResource(RUTA_VISTAS + "Login.fxml");
-            
-            if (rutaLogin == null) {
-                mostrarAlerta("Error de Ruta", "No se encontró el Login en: " + RUTA_VISTAS + "Login.fxml", Alert.AlertType.ERROR);
-                return;
-            }
+    private void configurarBoton(Button boton, boolean permitido) {
+        if (boton != null) {
+            boton.setDisable(!permitido);
+        }
+    }
 
-          
-            Parent root = FXMLLoader.load(rutaLogin);
+
+    @FXML
+    private void btnAdministradoresOnAction(ActionEvent event) {
+        cargarVista("/com/mycompany/clinica/Administrador.fxml");
+    }
+
+    @FXML
+    private void btnDoctoresOnAction(ActionEvent event) {
+        cargarVista("/com/mycompany/clinica/Doctor.fxml");
+    }
+
+    @FXML
+    private void btnPacientesOnAction(ActionEvent event) {
+        cargarVista("/com/mycompany/clinica/Paciente.fxml");
+    }
+
+    @FXML
+    private void btnCitasOnAction(ActionEvent event) {
+        cargarVista("/com/mycompany/clinica/Cita.fxml");
+    }
+
+    @FXML
+    private void btnConsultasOnAction(ActionEvent event) {
+        cargarVista("/com/mycompany/clinica/Consulta.fxml");
+    }
+
+    @FXML
+    private void btnCerrarSesionOnAction(ActionEvent event) {
+        Sesion.cerrarSesion();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/mycompany/clinica/Login.fxml"));
+            Parent root = loader.load();
+
             Stage loginStage = new Stage();
-            loginStage.setTitle("Sistema de Gestión de Clínica");
+            loginStage.setTitle("Iniciar Sesión - Clínica");
             loginStage.setScene(new Scene(root));
-            loginStage.setResizable(false);
             loginStage.show();
             
-        
-            Stage dashboardStage = (Stage) btnCerrarSesion.getScene().getWindow();
+            Stage dashboardStage = (Stage) btnCitas.getScene().getWindow();
             dashboardStage.close();
-            
-        } catch (Exception ex) {
-            mostrarAlerta("Error Crítico", "Ocurrió un error al intentar cerrar sesión.", Alert.AlertType.ERROR);
-            ex.printStackTrace();
+
+        } catch (IOException e) {
+            System.err.println("Error al volver al Login: " + e.getMessage());
         }
     }
-    
-    private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
-        Alert alerta = new Alert(tipo);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+
+    private void cargarVista(String rutaFxml) {
+        if (panelPrincipal == null) {
+            System.err.println("Error: 'panelPrincipal' es null. Verifica su fx:id en MainDashboard.fxml");
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(rutaFxml));
+            Parent vista = loader.load();
+            panelPrincipal.setCenter(vista);
+        } catch (IOException e) {
+            System.err.println("No se pudo cargar la vista: " + rutaFxml);
+            e.printStackTrace();
+            Alert alerta = new Alert(Alert.AlertType.ERROR);
+            alerta.setTitle("Error de Navegación");
+            alerta.setHeaderText(null);
+            alerta.setContentText("No se pudo abrir la interfaz: " + rutaFxml);
+            alerta.showAndWait();
+        }
     }
 }
