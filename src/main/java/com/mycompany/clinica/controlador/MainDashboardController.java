@@ -86,35 +86,35 @@ public class MainDashboardController implements Initializable {
 
 
     @FXML
-    private void btnAdministradoresOnAction(ActionEvent event) {
+    private void btnAdministradores(ActionEvent event) {
         cargarVista("/com/mycompany/clinica/vistas/Administrador.fxml");
     }
 
     @FXML
-    private void btnDoctoresOnAction(ActionEvent event) {
+    private void btnDoctores(ActionEvent event) {
         cargarVista("/com/mycompany/clinica/vistas/Doctor.fxml");
     }
 
     @FXML
-    private void btnPacientesOnAction(ActionEvent event) {
+    private void btnPacientes(ActionEvent event) {
         cargarVista("/com/mycompany/clinica/vistas/Paciente.fxml");
     }
 
     @FXML
-    private void btnCitasOnAction(ActionEvent event) {
+    private void btnCitas(ActionEvent event) {
         cargarVista("/com/mycompany/clinica/vistas/Cita.fxml");
     }
 
     @FXML
-    private void btnConsultasOnAction(ActionEvent event) {
+    private void btnConsultas(ActionEvent event) {
         cargarVista("/com/mycompany/clinica/vistas/Consulta.fxml");
     }
 
     @FXML
-    private void btnCerrarSesionOnAction(ActionEvent event) {
+    private void btnCerrarSesion(ActionEvent event) {
         Sesion.cerrarSesion();
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/mycompany/clinica/Login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/mycompany/clinica/vistas/Login.fxml"));
             Parent root = loader.load();
 
             Stage loginStage = new Stage();
