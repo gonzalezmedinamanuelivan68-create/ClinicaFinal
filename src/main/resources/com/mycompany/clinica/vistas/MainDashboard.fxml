@@ -23,30 +23,30 @@
                </VBox.margin>
             </Label>
             
-            <Button fx:id="btnPacientes" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: BASE_LEFT; -fx-font-size: 14px;" text="Pacientes">
+            <Button fx:id="btnPacientes" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-font-size: 14px;" text="Pacientes">
                <padding>
                   <Insets bottom="15.0" left="20.0" top="15.0" />
                </padding>
             </Button>
             
-            <Button fx:id="btnDoctores" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: BASE_LEFT; -fx-font-size: 14px;" text="Doctores">
+            <Button fx:id="btnDoctores" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-font-size: 14px;" text="Doctores">
                <padding>
                   <Insets bottom="15.0" left="20.0" top="15.0" />
                </padding>
             </Button>
             
-            <Button fx:id="btnCitas" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: BASE_LEFT; -fx-font-size: 14px;" text="Citas">
+            <Button fx:id="btnCitas" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-font-size: 14px;" text="Citas">
                <padding>
                   <Insets bottom="15.0" left="20.0" top="15.0" />
                </padding>
             </Button>
             
-            <Button fx:id="btnConsultas" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: BASE_LEFT; -fx-font-size: 14px;" text="Consultas">
+            <Button fx:id="btnConsultas" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-font-size: 14px;" text="Consultas">
                <padding>
                   <Insets bottom="15.0" left="20.0" top="15.0" />
                </padding>
             </Button>
-            <Button fx:id="btnAdministradores" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: BALINE_LEFT; -fx-font-size: 14px;" text="Administrador">
+            <Button fx:id="btnAdministradores" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-font-size: 14px;" text="Administrador">
                <padding>
                   <Insets bottom="15.0" left="20.0" top="15.0" />
                </padding>
