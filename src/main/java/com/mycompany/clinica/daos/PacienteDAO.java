@@ -52,7 +52,7 @@ public class PacienteDAO {
                  ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Paciente p = new Paciente();
-                    p.setIdPaciente(rs.getInt("id_paciente")); // Verifica si en tu modelo se llama setId o setIdPaciente
+                    p.setIdPaciente(rs.getInt("id_paciente")); 
                     p.setNombre(rs.getString("nombre"));
                     p.setApellidos(rs.getString("apellidos"));
                     p.setEdad(rs.getInt("edad"));
