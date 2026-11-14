@@ -42,6 +42,24 @@ public class DoctorDAO {
             return false;
         }
     }
+    public boolean actualizar(Doctor doc) {
+        String sql = "UPDATE doctores SET nombre = ?, apellidos = ?, especialidad = ?, cedula = ?, ruta_foto = ? WHERE id_doctor = ?";
+        try (Connection con = Conexion.conectar()) {
+            if (con == null) return false;
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, doc.getNombre());
+                ps.setString(2, doc.getApellidos());
+                ps.setString(3, doc.getEspecialidad());
+                ps.setString(4, doc.getCedula());
+                ps.setString(5, doc.getRutaFoto());
+                ps.setInt(6, doc.getIdDoctor());
+                return ps.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar doctor: " + e.getMessage());
+            return false;
+        }
+    }
 
     public ObservableList<Doctor> obtenerTodos() {
         ObservableList<Doctor> lista = FXCollections.observableArrayList();
