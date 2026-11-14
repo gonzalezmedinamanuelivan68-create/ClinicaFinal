@@ -1,5 +1,6 @@
 package com.mycompany.clinica.controlador;
 
+import com.mycompany.clinica.config.GestorArchivos;
 import com.mycompany.clinica.daos.DoctorDAO;
 import com.mycompany.clinica.modelo.Doctor;
 import java.io.File;
@@ -28,6 +29,7 @@ public class DoctorController implements Initializable {
     @FXML private ImageView imgVistaPrevia;
 
     @FXML private Button btnGuardar;
+    @FXML private Button btnActualizar;
     @FXML private Button btnLimpiar;
     @FXML private Button btnEliminar;
 
@@ -39,6 +41,7 @@ public class DoctorController implements Initializable {
     @FXML private TableColumn<Doctor, String> colCedula;
 
     private final DoctorDAO doctorDAO = new DoctorDAO();
+    private Doctor doctorSeleccionado = null;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -50,12 +53,14 @@ public class DoctorController implements Initializable {
 
         actualizarTabla();
 
-        btnGuardar.setOnAction(e -> guardarDoctor());
-        btnLimpiar.setOnAction(e -> limpiarCampos());
-        btnEliminar.setOnAction(e -> eliminarDoctor());
+        if (btnGuardar != null) btnGuardar.setOnAction(e -> guardarDoctor());
+        if (btnActualizar != null) btnActualizar.setOnAction(e -> actualizarDoctor());
+        if (btnLimpiar != null) btnLimpiar.setOnAction(e -> limpiarCampos());
+        if (btnEliminar != null) btnEliminar.setOnAction(e -> eliminarDoctor());
 
         tablaDoctores.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
+                doctorSeleccionado = newSel;
                 mostrarDetalleDoctor(newSel);
             }
         });
@@ -82,29 +87,63 @@ public class DoctorController implements Initializable {
             return;
         }
 
+        // Copia la imagen a Documentos/ClinicaApp/imagenes y obtiene la nueva ruta
+        String rutaGuardada = GestorArchivos.guardarImagen(txtRutaImagen.getText().trim());
+
         Doctor doc = new Doctor();
         doc.setNombre(txtNombre.getText().trim());
         doc.setApellidos(txtApellidos.getText().trim());
         doc.setEspecialidad(txtEspecialidad.getText().trim());
         doc.setCedula(txtCedula.getText().trim());
-        doc.setRutaFoto(txtRutaImagen.getText().trim());
+        doc.setRutaFoto(rutaGuardada);
 
         if (doctorDAO.guardar(doc)) {
             actualizarTabla();
             limpiarCampos();
-            mostrarAlerta("Registro exitoso", "El doctor ha sido guardado en la base de datos.", Alert.AlertType.INFORMATION);
+            mostrarAlerta("Registro exitoso", "Doctor guardado y foto almacenada en Documentos/ClinicaApp/imagenes.", Alert.AlertType.INFORMATION);
         } else {
-            mostrarAlerta("Error", "No se pudo guardar el doctor. Verifica la conexión a MySQL.", Alert.AlertType.ERROR);
+            GestorArchivos.eliminarImagen(rutaGuardada);
+            mostrarAlerta("Error", "No se pudo guardar el doctor en MySQL.", Alert.AlertType.ERROR);
+        }
+    }
+
+    private void actualizarDoctor() {
+        if (doctorSeleccionado == null) {
+            mostrarAlerta("Selección requerida", "Selecciona un doctor de la tabla para actualizar.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        String rutaAnterior = doctorSeleccionado.getRutaFoto();
+        String rutaNueva = GestorArchivos.guardarImagen(txtRutaImagen.getText().trim());
+
+        doctorSeleccionado.setNombre(txtNombre.getText().trim());
+        doctorSeleccionado.setApellidos(txtApellidos.getText().trim());
+        doctorSeleccionado.setEspecialidad(txtEspecialidad.getText().trim());
+        doctorSeleccionado.setCedula(txtCedula.getText().trim());
+        doctorSeleccionado.setRutaFoto(rutaNueva);
+
+        if (doctorDAO.actualizar(doctorSeleccionado)) {
+            // Si cambió la foto, eliminamos el archivo viejo de Documentos
+            if (rutaAnterior != null && !rutaAnterior.equals(rutaNueva)) {
+                GestorArchivos.eliminarImagen(rutaAnterior);
+            }
+            actualizarTabla();
+            limpiarCampos();
+            mostrarAlerta("Actualizado", "Datos del doctor actualizados correctamente.", Alert.AlertType.INFORMATION);
+        } else {
+            mostrarAlerta("Error", "No se pudo actualizar el registro.", Alert.AlertType.ERROR);
         }
     }
 
     private void eliminarDoctor() {
         Doctor seleccionado = tablaDoctores.getSelectionModel().getSelectedItem();
         if (seleccionado != null) {
+            String rutaFoto = seleccionado.getRutaFoto();
             if (doctorDAO.borrar(seleccionado.getIdDoctor())) {
+                GestorArchivos.eliminarImagen(rutaFoto);
                 actualizarTabla();
                 limpiarCampos();
-                mostrarAlerta("Eliminado", "El registro del doctor ha sido eliminado.", Alert.AlertType.INFORMATION);
+                mostrarAlerta("Eliminado", "El doctor y su imagen fueron eliminados.", Alert.AlertType.INFORMATION);
             } else {
                 mostrarAlerta("Error", "No se pudo eliminar el registro.", Alert.AlertType.ERROR);
             }
@@ -138,6 +177,7 @@ public class DoctorController implements Initializable {
     }
 
     private void limpiarCampos() {
+        doctorSeleccionado = null;
         txtNombre.clear();
         txtApellidos.clear();
         txtEspecialidad.clear();
