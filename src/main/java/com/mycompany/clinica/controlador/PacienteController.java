@@ -1,14 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
- */
 package com.mycompany.clinica.controlador;
 
-import com.mycompany.clinica.modelo.AlmacenDatos;
+import com.mycompany.clinica.daos.PacienteDAO;
 import com.mycompany.clinica.modelo.Paciente;
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -21,112 +18,127 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 
-/**
- * FXML Controller class
- *
- * @author Gonzalez medina Manuel Ivan
- */
 public class PacienteController implements Initializable {
 
-    @FXML
-    private TextField txtNombre;
-    @FXML
-    private TextField txtApellidos;
-    @FXML
-    private TextField txtEdad;
-    @FXML
-    private TextField txtTelefono;
-    
-    @FXML 
-    private ImageView imgFoto;
+    @FXML private TextField txtNombre;
+    @FXML private TextField txtApellidos;
+    @FXML private TextField txtEdad;
+    @FXML private TextField txtTelefono;
     @FXML private TextField txtRutaImagen;
     @FXML private ImageView imgVistaPrevia;
-    @FXML 
-    private Button btnSubirFoto;
-    private String rutaFotoActual = "";
 
-    @FXML
-    private Button btnGuardar;
-    @FXML
-    private Button btnLimpiar;
-    @FXML
-    private Button btnEliminar;
+    @FXML private Button btnGuardar;
+    @FXML private Button btnLimpiar;
+    @FXML private Button btnEliminar;
 
-    @FXML
-    private TableView<Paciente> tablaPacientes;
-    @FXML
-    private TableColumn<Paciente, Integer> colId;
-    @FXML
-    private TableColumn<Paciente, String> colNombre;
-    @FXML
-    private TableColumn<Paciente, String> colApellidos;
-    @FXML
-    private TableColumn<Paciente, Integer> colEdad;
-    @FXML
-    private TableColumn<Paciente, String> colTelefono;
+    @FXML private TableView<Paciente> tablaPacientes;
+    @FXML private TableColumn<Paciente, Integer> colId;
+    @FXML private TableColumn<Paciente, String> colNombre;
+    @FXML private TableColumn<Paciente, String> colApellidos;
+    @FXML private TableColumn<Paciente, Integer> colEdad;
+    @FXML private TableColumn<Paciente, String> colTelefono;
+
+    private final PacienteDAO pacienteDAO = new PacienteDAO();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
         colId.setCellValueFactory(new PropertyValueFactory<>("idPaciente"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colApellidos.setCellValueFactory(new PropertyValueFactory<>("apellidos"));
         colEdad.setCellValueFactory(new PropertyValueFactory<>("edad"));
         colTelefono.setCellValueFactory(new PropertyValueFactory<>("telefono"));
 
-        tablaPacientes.setItems(AlmacenDatos.getInstancia().getPacientes());
+        actualizarTabla();
 
         btnGuardar.setOnAction(e -> guardarPaciente());
         btnLimpiar.setOnAction(e -> limpiarCampos());
         btnEliminar.setOnAction(e -> eliminarPaciente());
-        btnSubirFoto.setOnAction(e -> seleccionarFoto());
-        
-        tablaPacientes.getSelectionModel().selectedItemProperty().addListener((obs, viejo, nuevo) -> {
-            if (nuevo != null && nuevo.getRutaFoto() != null && !nuevo.getRutaFoto().isEmpty()) {
-                imgFoto.setImage(new Image(nuevo.getRutaFoto()));
-            } else {
-                imgFoto.setImage(null);
+
+        tablaPacientes.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            if (newSel != null) {
+                mostrarDetallePaciente(newSel);
             }
         });
     }
-    
-    private void seleccionarFoto() {
+
+    @FXML
+    private void btnSeleccionarImagenOnAction(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Seleccionar Foto de Perfil");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg"));
-        
-        File archivoSelec = fileChooser.showOpenDialog(null);
-        if (archivoSelec != null) {
-            rutaFotoActual = archivoSelec.toURI().toString();
-            imgFoto.setImage(new Image(rutaFotoActual));
+        fileChooser.setTitle("Seleccionar Foto del Paciente");
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("Archivos de Imagen", "*.png", "*.jpg", "*.jpeg")
+        );
+        File archivoSeleccionado = fileChooser.showOpenDialog(txtNombre.getScene().getWindow());
+        if (archivoSeleccionado != null) {
+            txtRutaImagen.setText(archivoSeleccionado.getAbsolutePath());
+            cargarImagenVistaPrevia(archivoSeleccionado.getAbsolutePath());
         }
     }
 
     private void guardarPaciente() {
-        try {
-            String nombre = txtNombre.getText();
-            String apellidos = txtApellidos.getText();
-            int edad = Integer.parseInt(txtEdad.getText());
-            String telefono = txtTelefono.getText();
-            
-           
+        if (txtNombre.getText().trim().isEmpty() || txtApellidos.getText().trim().isEmpty() ||
+            txtEdad.getText().trim().isEmpty() || txtTelefono.getText().trim().isEmpty()) {
+            mostrarAlerta("Campos incompletos", "Por favor, llena todos los campos del paciente.", Alert.AlertType.WARNING);
+            return;
+        }
 
-            if (nombre.isEmpty() || apellidos.isEmpty() || telefono.isEmpty()) {
-                mostrarAlerta("Error", "Todos los campos son obligatorios", Alert.AlertType.WARNING);
+        try {
+            Paciente p = new Paciente();
+            p.setNombre(txtNombre.getText().trim());
+            p.setApellidos(txtApellidos.getText().trim());
+            p.setEdad(Integer.parseInt(txtEdad.getText().trim()));
+            p.setTelefono(txtTelefono.getText().trim());
+            p.setRutaFoto(txtRutaImagen.getText().trim());
+
+            if (pacienteDAO.guardar(p)) {
+                actualizarTabla();
+                limpiarCampos();
+                mostrarAlerta("Registro exitoso", "El paciente ha sido guardado en la base de datos.", Alert.AlertType.INFORMATION);
+            } else {
+                mostrarAlerta("Error", "No se pudo guardar el paciente.", Alert.AlertType.ERROR);
+            }
+        } catch (NumberFormatException e) {
+            mostrarAlerta("Dato inválido", "La edad debe ser un número entero.", Alert.AlertType.WARNING);
+        }
+    }
+
+    private void eliminarPaciente() {
+        Paciente seleccionado = tablaPacientes.getSelectionModel().getSelectedItem();
+        if (seleccionado != null) {
+            if (pacienteDAO.borrar(seleccionado.getIdPaciente())) {
+                actualizarTabla();
+                limpiarCampos();
+                mostrarAlerta("Eliminado", "El paciente ha sido eliminado.", Alert.AlertType.INFORMATION);
+            } else {
+                mostrarAlerta("Error", "No se pudo eliminar el registro.", Alert.AlertType.ERROR);
+            }
+        } else {
+            mostrarAlerta("Selección requerida", "Selecciona un paciente de la tabla.", Alert.AlertType.WARNING);
+        }
+    }
+
+    private void mostrarDetallePaciente(Paciente p) {
+        txtNombre.setText(p.getNombre());
+        txtApellidos.setText(p.getApellidos());
+        txtEdad.setText(String.valueOf(p.getEdad()));
+        txtTelefono.setText(p.getTelefono());
+        txtRutaImagen.setText(p.getRutaFoto());
+        cargarImagenVistaPrevia(p.getRutaFoto());
+    }
+
+    private void cargarImagenVistaPrevia(String ruta) {
+        if (ruta != null && !ruta.trim().isEmpty()) {
+            File archivo = new File(ruta);
+            if (archivo.exists()) {
+                imgVistaPrevia.setImage(new Image(archivo.toURI().toString()));
                 return;
             }
-
-            int id = AlmacenDatos.getInstancia().getSiguienteIdPaciente();
-            Paciente nuevoPaciente = new Paciente(id, nombre, apellidos, edad, telefono);
-
-            AlmacenDatos.getInstancia().getPacientes().add(nuevoPaciente);
-
-            limpiarCampos();
-            mostrarAlerta("Éxito", "Paciente registrado correctamente", Alert.AlertType.INFORMATION);
-
-        } catch (NumberFormatException e) {
-            mostrarAlerta("Error de formato", "La edad debe ser un número válido", Alert.AlertType.ERROR);
         }
+        imgVistaPrevia.setImage(null);
+    }
+
+    private void actualizarTabla() {
+        tablaPacientes.setItems(pacienteDAO.obtenerTodos());
     }
 
     private void limpiarCampos() {
@@ -134,45 +146,9 @@ public class PacienteController implements Initializable {
         txtApellidos.clear();
         txtEdad.clear();
         txtTelefono.clear();
-    }
-
-    private void eliminarPaciente() {
-        Paciente seleccionado = tablaPacientes.getSelectionModel().getSelectedItem();
-
-        if (seleccionado != null) {
-            AlmacenDatos.getInstancia().getPacientes().remove(seleccionado);
-            mostrarAlerta("Eliminado", "Paciente eliminado del registro", Alert.AlertType.INFORMATION);
-        } else {
-            mostrarAlerta("Advertencia", "Selecciona un paciente de la tabla para eliminar", Alert.AlertType.WARNING);
-        }
-    }
-    @FXML
-    private void btnSeleccionarImagenOnAction(javafx.event.ActionEvent event) {
-        javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
-        fileChooser.setTitle("Seleccionar Foto del Paciente");
-        fileChooser.getExtensionFilters().add(
-            new javafx.stage.FileChooser.ExtensionFilter("Archivos de Imagen", "*.png", "*.jpg", "*.jpeg")
-        );
-        
-        java.io.File archivoSeleccionado = fileChooser.showOpenDialog(txtNombre.getScene().getWindow());
-        
-        if (archivoSeleccionado != null) {
-            txtRutaImagen.setText(archivoSeleccionado.getAbsolutePath());
-            cargarImagenVistaPrevia(archivoSeleccionado.getAbsolutePath());
-        }
-    }
-
-    // Y asegúrate de tener también el método que dibuja la foto:
-    private void cargarImagenVistaPrevia(String ruta) {
-        if (ruta != null && !ruta.trim().isEmpty()) {
-            java.io.File archivo = new java.io.File(ruta);
-            if (archivo.exists()) {
-                javafx.scene.image.Image imagen = new javafx.scene.image.Image(archivo.toURI().toString());
-                imgVistaPrevia.setImage(imagen);
-                return;
-            }
-        }
+        txtRutaImagen.clear();
         imgVistaPrevia.setImage(null);
+        tablaPacientes.getSelectionModel().clearSelection();
     }
 
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
