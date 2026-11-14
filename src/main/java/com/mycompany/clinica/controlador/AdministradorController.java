@@ -67,7 +67,7 @@ public class AdministradorController implements Initializable {
         colRutaImagen.setCellValueFactory(new PropertyValueFactory<>("rutaImagen"));
 
         cmbRol.setItems(FXCollections.observableArrayList(ERoles.values()));
-        cmbRol.setValue(ERoles.ADMINISTRADORES);
+        cmbRol.setValue(ERoles.ADMINISTRADOR);
 
         cmbEstado.setItems(FXCollections.observableArrayList(EEstados.values()));
         cmbEstado.setValue(EEstados.ACTIVO);
@@ -231,7 +231,7 @@ public class AdministradorController implements Initializable {
         txtDireccion.setText("");
         txtUsuario.setText("");
         txtContraseña.setText("");
-        cmbRol.setValue(ERoles.ADMINISTRADORES);
+        cmbRol.setValue(ERoles.ADMINISTRADOR);
         cmbEstado.setValue(EEstados.ACTIVO);
         txtRutaImagen.setText("");
         imgVistaPrevia.setImage(null);
