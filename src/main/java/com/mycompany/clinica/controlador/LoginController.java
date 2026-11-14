@@ -65,7 +65,7 @@ public class LoginController implements Initializable {
 
     private void abrirDashboard() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/mycompany/clinica/MainDashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/mycompany/clinica/vistas/MainDashboard.fxml"));
             Parent root = loader.load();
 
             Stage stage = new Stage();
