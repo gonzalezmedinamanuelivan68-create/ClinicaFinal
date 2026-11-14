@@ -1,6 +1,7 @@
 package com.mycompany.clinica.controlador;
 
 import com.mycompany.clinica.config.Sesion;
+import com.mycompany.clinica.config.GestorArchivos;
 import com.mycompany.clinica.daos.AdministradorDAO;
 import com.mycompany.clinica.modelos.Administrador;
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        GestorArchivos.inicializarDirectorios();
         if (txtContraseña != null) {
             txtContraseña.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.ENTER) {
