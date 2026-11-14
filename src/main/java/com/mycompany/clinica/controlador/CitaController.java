@@ -7,7 +7,6 @@ import com.mycompany.clinica.modelo.Cita;
 import com.mycompany.clinica.modelo.Doctor;
 import com.mycompany.clinica.modelo.Paciente;
 import java.net.URL;
-import java.time.LocalDate;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -32,9 +31,9 @@ public class CitaController implements Initializable {
 
     @FXML private TableView<Cita> tablaCitas;
     @FXML private TableColumn<Cita, Integer> colId;
-    @FXML private TableColumn<Cita, Integer> colPaciente;
-    @FXML private TableColumn<Cita, Integer> colDoctor;
-    @FXML private TableColumn<Cita, LocalDate> colFecha;
+    @FXML private TableColumn<Cita, Paciente> colPaciente;
+    @FXML private TableColumn<Cita, Doctor> colDoctor;
+    @FXML private TableColumn<Cita, String> colFecha;
     @FXML private TableColumn<Cita, String> colHora;
     @FXML private TableColumn<Cita, String> colEstado;
 
@@ -45,8 +44,8 @@ public class CitaController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         colId.setCellValueFactory(new PropertyValueFactory<>("idCita"));
-        colPaciente.setCellValueFactory(new PropertyValueFactory<>("idPaciente"));
-        colDoctor.setCellValueFactory(new PropertyValueFactory<>("idDoctor"));
+        colPaciente.setCellValueFactory(new PropertyValueFactory<>("paciente"));
+        colDoctor.setCellValueFactory(new PropertyValueFactory<>("doctor"));
         colFecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         colHora.setCellValueFactory(new PropertyValueFactory<>("hora"));
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
@@ -71,9 +70,9 @@ public class CitaController implements Initializable {
         }
 
         Cita cita = new Cita();
-        cita.setIdPaciente(cmbPaciente.getValue().getIdPaciente());
-        cita.setIdDoctor(cmbDoctor.getValue().getIdDoctor());
-        cita.setFecha(dpFecha.getValue());
+        cita.setIdPaciente(cmbPaciente.getValue());
+        cita.setIdDoctor(cmbDoctor.getValue());
+        cita.setFecha(dpFecha.getValue().toString()); // Convierte LocalDate a String (YYYY-MM-DD)
         cita.setHora(txtHora.getText().trim());
         cita.setEstado("Pendiente");
 
