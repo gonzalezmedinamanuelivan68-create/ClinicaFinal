@@ -22,15 +22,15 @@ import javafx.stage.Stage;
 public class LoginController implements Initializable {
 
     @FXML private TextField txtUsuario;
-    @FXML private TextInputControl txtPassword; 
+    @FXML private TextInputControl txtContraseña; 
     @FXML private Button btnIngresar;
 
     private final AdministradorDAO administradorDAO = new AdministradorDAO();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        if (txtPassword != null) {
-            txtPassword.setOnKeyPressed(event -> {
+        if (txtContraseña != null) {
+            txtContraseña.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.ENTER) {
                     btnIniciarSesionOnAction(null);
                 }
@@ -41,7 +41,7 @@ public class LoginController implements Initializable {
     @FXML
     private void btnIniciarSesionOnAction(ActionEvent event) {
         String usuario = txtUsuario.getText().trim();
-        String password = txtPassword.getText().trim();
+        String password = txtContraseña.getText().trim();
 
         if (usuario.isEmpty() || password.isEmpty()) {
             mostrarAlerta("Campos vacíos", "Por favor, ingresa tu usuario y contraseña.", Alert.AlertType.WARNING);
@@ -58,7 +58,7 @@ public class LoginController implements Initializable {
             abrirDashboard();
         } else {
             mostrarAlerta("Acceso Denegado", "Usuario o contraseña incorrectos, o la cuenta está inactiva.", Alert.AlertType.ERROR);
-            txtPassword.clear();
+            txtContraseña.clear();
             txtUsuario.requestFocus();
         }
     }
