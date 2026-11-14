@@ -87,22 +87,22 @@ public class AdministradorDAO {
                 Administrador admin = new Administrador();
                 
                 admin.setId(rs.getInt("id"));
-                admin.setNombres(rs.getString("nombre")); // Recuerda, en BD es 'nombre'
-                admin.setNumero(rs.getString("telefono")); // En BD es 'telefono'
+                admin.setNombres(rs.getString("nombre")); 
+                admin.setNumero(rs.getString("telefono")); 
                 admin.setCorreo(rs.getString("email"));
                 admin.setDireccion(rs.getString("direccion"));
                 admin.setUsuario(rs.getString("usuario"));
                 admin.setContraseña(rs.getString("password"));
                 admin.setRutaImagen(rs.getString("ruta_foto"));
                 
-                // --- PROTECCIÓN PARA ENUMS ---
+                
                 try {
-                    // Intenta convertir el texto de MySQL al Enum, forzando mayúsculas
+                    
                     String rolBD = rs.getString("rol");
                     if (rolBD != null) admin.setRol(ERoles.valueOf(rolBD.toUpperCase()));
                 } catch (Exception e) {
                     System.err.println("Rol no reconocido en BD: " + rs.getString("rol"));
-                    // Si falla, pon un valor por defecto (cambia 'ADMINISTRADORES' si tu enum se llama distinto)
+                    
                     admin.setRol(ERoles.ADMINISTRADORES); 
                 }
                 
