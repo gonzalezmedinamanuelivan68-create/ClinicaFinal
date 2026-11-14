@@ -19,7 +19,7 @@ public class CitaDAO {
             try (PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setInt(1, cita.getIdPaciente());
                 ps.setInt(2, cita.getIdDoctor());
-                ps.setDate(3, Date.valueOf(cita.getFecha())); // Convierte LocalDate a SQL Date
+                ps.setDate(3, Date.valueOf(cita.getFecha())); 
                 ps.setString(4, cita.getHora());
                 ps.setString(5, cita.getEstado() != null ? cita.getEstado() : "Pendiente");
                 return ps.executeUpdate() > 0;
