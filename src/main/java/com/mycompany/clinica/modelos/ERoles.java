@@ -9,5 +9,5 @@ package com.mycompany.clinica.modelos;
  * @author Gonzalez Medina Manuel Ivan
  */
 public enum ERoles {
-  ADMINISTRADOR, MEDICO, RECEPCIONISTA
+  ADMINISTRADOR, DOCTOR, RECEPCIONISTA
 }
