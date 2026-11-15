@@ -17,7 +17,7 @@ public class ConsultaDAO {
     public ObservableList<Consulta> obtenerTodos() {
         ObservableList<Consulta> lista = FXCollections.observableArrayList();
         try {
-            HttpResponse<String> response = ApiCliente.get("/consultas");
+            HttpResponse<String> response = ApiCliente.get("/consultas.php");
             if (response.statusCode() == 200) {
                 Type tipoLista = new TypeToken<List<Consulta>>() {}.getType();
                 List<Consulta> consultasApi = gson.fromJson(response.body(), tipoLista);
@@ -34,7 +34,7 @@ public class ConsultaDAO {
     public boolean guardar(Consulta consulta) {
         try {
             String json = gson.toJson(consulta);
-            HttpResponse<String> response = ApiCliente.post("/consultas", json);
+            HttpResponse<String> response = ApiCliente.post("/consultas.php", json);
             return response.statusCode() == 200 || response.statusCode() == 201;
         } catch (Exception e) {
             System.err.println("Error al guardar consulta en API: " + e.getMessage());

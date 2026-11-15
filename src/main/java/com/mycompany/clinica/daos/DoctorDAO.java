@@ -17,7 +17,7 @@ public class DoctorDAO {
     public ObservableList<Doctor> obtenerTodos() {
         ObservableList<Doctor> lista = FXCollections.observableArrayList();
         try {
-            HttpResponse<String> response = ApiCliente.get("/doctores");
+            HttpResponse<String> response = ApiCliente.get("/doctores.php");
             if (response.statusCode() == 200) {
                 Type tipoLista = new TypeToken<List<Doctor>>() {}.getType();
                 List<Doctor> doctoresApi = gson.fromJson(response.body(), tipoLista);
@@ -34,7 +34,7 @@ public class DoctorDAO {
     public boolean guardar(Doctor doc) {
         try {
             String json = gson.toJson(doc);
-            HttpResponse<String> response = ApiCliente.post("/doctores", json);
+            HttpResponse<String> response = ApiCliente.post("/doctores.php", json);
             return response.statusCode() == 200 || response.statusCode() == 201;
         } catch (Exception e) {
             System.err.println("Error al guardar doctor en API: " + e.getMessage());
@@ -45,7 +45,7 @@ public class DoctorDAO {
     public boolean actualizar(Doctor doc) {
         try {
             String json = gson.toJson(doc);
-            HttpResponse<String> response = ApiCliente.put("/doctores/" + doc.getIdDoctor(), json);
+            HttpResponse<String> response = ApiCliente.put("/doctores.php?id=" + doc.getIdDoctor(), json);
             return response.statusCode() == 200;
         } catch (Exception e) {
             System.err.println("Error al actualizar doctor en API: " + e.getMessage());
@@ -55,7 +55,7 @@ public class DoctorDAO {
 
     public boolean borrar(int idDoctor) {
         try {
-            HttpResponse<String> response = ApiCliente.delete("/doctores/" + idDoctor);
+            HttpResponse<String> response = ApiCliente.delete("/doctores.php?id=" + idDoctor);
             return response.statusCode() == 200 || response.statusCode() == 204;
         } catch (Exception e) {
             System.err.println("Error al eliminar doctor en API: " + e.getMessage());

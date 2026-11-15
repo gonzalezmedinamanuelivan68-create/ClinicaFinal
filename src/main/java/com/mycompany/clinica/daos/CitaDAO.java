@@ -17,7 +17,7 @@ public class CitaDAO {
     public ObservableList<Cita> obtenerTodos() {
         ObservableList<Cita> lista = FXCollections.observableArrayList();
         try {
-            HttpResponse<String> response = ApiCliente.get("/citas");
+            HttpResponse<String> response = ApiCliente.get("/citas.php");
             if (response.statusCode() == 200) {
                 Type tipoLista = new TypeToken<List<Cita>>() {}.getType();
                 List<Cita> citasApi = gson.fromJson(response.body(), tipoLista);
@@ -34,7 +34,7 @@ public class CitaDAO {
     public boolean guardar(Cita cita) {
         try {
             String json = gson.toJson(cita);
-            HttpResponse<String> response = ApiCliente.post("/citas", json);
+            HttpResponse<String> response = ApiCliente.post("/citas.php", json);
             return response.statusCode() == 200 || response.statusCode() == 201;
         } catch (Exception e) {
             System.err.println("Error al guardar cita en API: " + e.getMessage());
