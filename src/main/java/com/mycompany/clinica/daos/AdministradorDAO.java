@@ -15,7 +15,7 @@ import javafx.collections.ObservableList;
 public class AdministradorDAO {
 
     private final Gson gson = new Gson();
-
+    
     public Administrador login(String usuario, String password) {
         try {
             Map<String, String> credenciales = new HashMap<>();
@@ -25,14 +25,21 @@ public class AdministradorDAO {
             String json = gson.toJson(credenciales);
             HttpResponse<String> response = ApiCliente.post("/login", json);
 
+            // Líneas de diagnóstico en consola:
+            System.out.println("STATUS HTTP: " + response.statusCode());
+            System.out.println("RESPUESTA API: " + response.body());
+
             if (response.statusCode() == 200) {
                 return gson.fromJson(response.body(), Administrador.class);
             }
         } catch (Exception e) {
-            System.err.println("Error en login con API: " + e.getMessage());
+            System.err.println("EXCEPCIÓN EN LOGIN: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
+
+
 
     public ObservableList<Administrador> obtenerTodos() {
         ObservableList<Administrador> lista = FXCollections.observableArrayList();
