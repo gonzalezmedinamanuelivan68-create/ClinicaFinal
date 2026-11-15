@@ -1,5 +1,6 @@
 package com.mycompany.clinica;
 
+import com.mycompany.clinica.config.GestorArchivos;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -17,8 +18,13 @@ public class App extends Application {
     
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("Login"), 640, 480);
+        
+        GestorArchivos.inicializarDirectorios();
+        
+        scene = new Scene(loadFXML("Login"));
+        stage.setTitle("Iniciar Sesión - Sistema Clínico");
         stage.setScene(scene);
+        stage.centerOnScreen();
         stage.show();
     }
 
