@@ -1,61 +1,44 @@
 package com.mycompany.clinica.daos;
 
-import com.mycompany.clinica.config.Conexion;
-import com.mycompany.clinica.modelo.Cita;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.mycompany.clinica.config.ApiCliente;
 import com.mycompany.clinica.modelo.Consulta;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.lang.reflect.Type;
+import java.net.http.HttpResponse;
+import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class ConsultaDAO {
 
-    public boolean guardar(Consulta consulta) {
-        String sql = "INSERT INTO consultas (id_cita, diagnostico, tratamiento, notas) VALUES (?, ?, ?, ?)";
-        try (Connection con = Conexion.conectar()) {
-            if (con == null) return false;
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setInt(1, consulta.getIdCita().getIdCita());
-                ps.setString(2, consulta.getDiagnostico());
-                ps.setString(3, consulta.getTratamiento());
-                ps.setString(4, consulta.getNotas());
-                return ps.executeUpdate() > 0;
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al guardar consulta: " + e.getMessage());
-            return false;
-        }
-    }
+    private final Gson gson = new Gson();
 
     public ObservableList<Consulta> obtenerTodos() {
         ObservableList<Consulta> lista = FXCollections.observableArrayList();
-        String sql = "SELECT co.*, ci.fecha, ci.hora FROM consultas co " +
-                     "INNER JOIN citas ci ON co.id_cita = ci.id_cita";
-                     
-        try (Connection con = Conexion.conectar()) {
-            if (con == null) return lista;
-            try (PreparedStatement ps = con.prepareStatement(sql);
-                 ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Cita cita = new Cita();
-                    cita.setIdCita(rs.getInt("id_cita"));
-                    cita.setFecha(rs.getString("fecha"));
-                    cita.setHora(rs.getString("hora"));
-
-                    Consulta c = new Consulta();
-                    c.setIdConsulta(rs.getInt("id_consulta"));
-                    c.setIdCita(cita);
-                    c.setDiagnostico(rs.getString("diagnostico"));
-                    c.setTratamiento(rs.getString("tratamiento"));
-                    c.setNotas(rs.getString("notas"));
-                    lista.add(c);
+        try {
+            HttpResponse<String> response = ApiCliente.get("/consultas");
+            if (response.statusCode() == 200) {
+                Type tipoLista = new TypeToken<List<Consulta>>() {}.getType();
+                List<Consulta> consultasApi = gson.fromJson(response.body(), tipoLista);
+                if (consultasApi != null) {
+                    lista.addAll(consultasApi);
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("Error al listar consultas: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error al obtener consultas de la API: " + e.getMessage());
         }
         return lista;
+    }
+
+    public boolean guardar(Consulta consulta) {
+        try {
+            String json = gson.toJson(consulta);
+            HttpResponse<String> response = ApiCliente.post("/consultas", json);
+            return response.statusCode() == 200 || response.statusCode() == 201;
+        } catch (Exception e) {
+            System.err.println("Error al guardar consulta en API: " + e.getMessage());
+            return false;
+        }
     }
 }

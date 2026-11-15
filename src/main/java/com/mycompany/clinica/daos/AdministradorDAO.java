@@ -1,153 +1,85 @@
 package com.mycompany.clinica.daos;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.mycompany.clinica.config.ApiCliente;
 import com.mycompany.clinica.modelos.Administrador;
-import com.mycompany.clinica.config.Conexion;
-import com.mycompany.clinica.modelos.EEstados;
-import com.mycompany.clinica.modelos.ERoles;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.lang.reflect.Type;
+import java.net.http.HttpResponse;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class AdministradorDAO {
+
+    private final Gson gson = new Gson();
+
     public Administrador login(String usuario, String password) {
-        String sql = "SELECT * FROM administradores WHERE usuario = ? AND password = ? AND estado = 'ACTIVO'";
-        
-        try (Connection con = Conexion.conectar()) {
-            if (con == null) return null;
-            
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setString(1, usuario);
-                ps.setString(2, password);
-                
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Administrador admin = new Administrador();
-                        admin.setId(rs.getInt("id"));
-                        admin.setNombres(rs.getString("nombre"));
-                        admin.setUsuario(rs.getString("usuario"));
-                        admin.setRol(ERoles.valueOf(rs.getString("rol").toUpperCase()));
-                        admin.setEstado(EEstados.valueOf(rs.getString("estado").toUpperCase()));
-                        return admin;
-                    }
-                }
+        try {
+            Map<String, String> credenciales = new HashMap<>();
+            credenciales.put("usuario", usuario);
+            credenciales.put("password", password);
+
+            String json = gson.toJson(credenciales);
+            HttpResponse<String> response = ApiCliente.post("/login", json);
+
+            if (response.statusCode() == 200) {
+                return gson.fromJson(response.body(), Administrador.class);
             }
-        } catch (SQLException e) {
-            System.err.println("Error en login: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error en login con API: " + e.getMessage());
         }
         return null;
     }
 
-    public boolean guardar(Administrador admin) {
-        String sql = "INSERT INTO administradores (nombre, telefono, email, direccion, usuario, password, rol, estado, ruta_foto) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
-        try (Connection con = Conexion.conectar();
-        PreparedStatement ps = con.prepareStatement(sql)) {
-        
-        ps.setString(1, admin.getNombres());
-        ps.setString(2, admin.getNumero());
-        ps.setString(3, admin.getCorreo());
-        ps.setString(4, admin.getDireccion());
-        ps.setString(5, admin.getUsuario());
-        ps.setString(6, admin.getContraseña());
-        ps.setString(7, admin.getRol().name());
-        ps.setString(8, admin.getEstado().name());
-        ps.setString(9, admin.getRutaImagen());
-        
-        return ps.executeUpdate() > 0;
-        
-    } catch (SQLException e) {
-        System.err.println("Error al guardar administrador: " + e.getMessage());
-        return false;
+    public ObservableList<Administrador> obtenerTodos() {
+        ObservableList<Administrador> lista = FXCollections.observableArrayList();
+        try {
+            HttpResponse<String> response = ApiCliente.get("/administradores");
+            if (response.statusCode() == 200) {
+                Type tipoLista = new TypeToken<List<Administrador>>() {}.getType();
+                List<Administrador> adminsApi = gson.fromJson(response.body(), tipoLista);
+                if (adminsApi != null) {
+                    lista.addAll(adminsApi);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error al obtener administradores de la API: " + e.getMessage());
+        }
+        return lista;
     }
+
+    public boolean guardar(Administrador admin) {
+        try {
+            String json = gson.toJson(admin);
+            HttpResponse<String> response = ApiCliente.post("/administradores", json);
+            return response.statusCode() == 200 || response.statusCode() == 201;
+        } catch (Exception e) {
+            System.err.println("Error al guardar administrador en API: " + e.getMessage());
+            return false;
+        }
     }
 
     public boolean actualizar(Administrador admin) {
-        Connection con = null;
-     
-        String sql = "UPDATE administradores SET usuario=?, nombres=?, apellidos=?, correo=?, contraseña=?, rol=?, ruta_imagen=?, estados=? WHERE id=?;";
         try {
-            con = Conexion.conectar();
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, admin.getUsuario());
-            ps.setString(2, admin.getNombres());
-            ps.setString(3, admin.getApellidos());
-            ps.setString(4, admin.getCorreo());
-            ps.setString(5, admin.getContraseña());
-            ps.setString(6, admin.getRol().name());
-            ps.setString(7, admin.getRutaImagen());
-            ps.setString(8, admin.getEstado().name());
-            ps.setInt(9, admin.getId());
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.out.println("ERROR Actualizar: " + e.getMessage());
+            String json = gson.toJson(admin);
+            HttpResponse<String> response = ApiCliente.put("/administradores/" + admin.getId(), json);
+            return response.statusCode() == 200;
+        } catch (Exception e) {
+            System.err.println("Error al actualizar administrador en API: " + e.getMessage());
+            return false;
         }
-        return false;
     }
 
     public boolean borrar(int id) {
-        Connection con = null;
-      
-        String sql = "DELETE FROM administradores WHERE id=?;";
         try {
-            con = Conexion.conectar();
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.out.println("ERROR Borrar: " + e.getMessage());
+            HttpResponse<String> response = ApiCliente.delete("/administradores/" + id);
+            return response.statusCode() == 200 || response.statusCode() == 204;
+        } catch (Exception e) {
+            System.err.println("Error al eliminar administrador en API: " + e.getMessage());
+            return false;
         }
-        return false;
     }
-
-    public List<Administrador> obtenerTodos() {
-        List<Administrador> lista = new ArrayList<>();
-        String sql = "SELECT * FROM administradores";
-        
-        try (Connection con = Conexion.conectar();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            
-            while (rs.next()) {
-                Administrador admin = new Administrador();
-                
-                admin.setId(rs.getInt("id"));
-                admin.setNombres(rs.getString("nombre")); 
-                admin.setNumero(rs.getString("telefono")); 
-                admin.setCorreo(rs.getString("email"));
-                admin.setDireccion(rs.getString("direccion"));
-                admin.setUsuario(rs.getString("usuario"));
-                admin.setContraseña(rs.getString("password"));
-                admin.setRutaImagen(rs.getString("ruta_foto"));
-                
-                
-                try {
-                    
-                    String rolBD = rs.getString("rol");
-                    if (rolBD != null) admin.setRol(ERoles.valueOf(rolBD.toUpperCase()));
-                } catch (Exception e) {
-                    System.err.println("Rol no reconocido en BD: " + rs.getString("rol"));
-                    
-                    admin.setRol(ERoles.ADMINISTRADOR); 
-                }
-                
-                try {
-                    String estadoBD = rs.getString("estado");
-                    if (estadoBD != null) admin.setEstado(EEstados.valueOf(estadoBD.toUpperCase()));
-                } catch (Exception e) {
-                    System.err.println("Estado no reconocido en BD: " + rs.getString("estado"));
-                    admin.setEstado(EEstados.ACTIVO); // Valor por defecto
-                }
-                
-                lista.add(admin);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error SQL al obtener Todos: " + e.getMessage());
-        }
-        
-        return lista;
-    }
-    
 }

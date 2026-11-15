@@ -1,87 +1,65 @@
 package com.mycompany.clinica.daos;
 
-import com.mycompany.clinica.config.Conexion;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.mycompany.clinica.config.ApiCliente;
 import com.mycompany.clinica.modelo.Doctor;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.lang.reflect.Type;
+import java.net.http.HttpResponse;
+import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class DoctorDAO {
 
-    public boolean guardar(Doctor doc) {
-        String sql = "INSERT INTO doctores (nombre, apellidos, especialidad, cedula, ruta_foto) VALUES (?, ?, ?, ?, ?)";
-        try (Connection con = Conexion.conectar()) {
-            if (con == null) return false;
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setString(1, doc.getNombre());
-                ps.setString(2, doc.getApellidos());
-                ps.setString(3, doc.getEspecialidad());
-                ps.setString(4, doc.getCedula());
-                ps.setString(5, doc.getRutaFoto());
-                return ps.executeUpdate() > 0;
+    private final Gson gson = new Gson();
+
+    public ObservableList<Doctor> obtenerTodos() {
+        ObservableList<Doctor> lista = FXCollections.observableArrayList();
+        try {
+            HttpResponse<String> response = ApiCliente.get("/doctores");
+            if (response.statusCode() == 200) {
+                Type tipoLista = new TypeToken<List<Doctor>>() {}.getType();
+                List<Doctor> doctoresApi = gson.fromJson(response.body(), tipoLista);
+                if (doctoresApi != null) {
+                    lista.addAll(doctoresApi);
+                }
             }
-        } catch (SQLException e) {
-            System.err.println("Error al guardar doctor: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error al obtener doctores de la API: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    public boolean guardar(Doctor doc) {
+        try {
+            String json = gson.toJson(doc);
+            HttpResponse<String> response = ApiCliente.post("/doctores", json);
+            return response.statusCode() == 200 || response.statusCode() == 201;
+        } catch (Exception e) {
+            System.err.println("Error al guardar doctor en API: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean actualizar(Doctor doc) {
+        try {
+            String json = gson.toJson(doc);
+            HttpResponse<String> response = ApiCliente.put("/doctores/" + doc.getIdDoctor(), json);
+            return response.statusCode() == 200;
+        } catch (Exception e) {
+            System.err.println("Error al actualizar doctor en API: " + e.getMessage());
             return false;
         }
     }
 
     public boolean borrar(int idDoctor) {
-        String sql = "DELETE FROM doctores WHERE id_doctor = ?";
-        try (Connection con = Conexion.conectar()) {
-            if (con == null) return false;
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setInt(1, idDoctor);
-                return ps.executeUpdate() > 0;
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al eliminar doctor: " + e.getMessage());
+        try {
+            HttpResponse<String> response = ApiCliente.delete("/doctores/" + idDoctor);
+            return response.statusCode() == 200 || response.statusCode() == 204;
+        } catch (Exception e) {
+            System.err.println("Error al eliminar doctor en API: " + e.getMessage());
             return false;
         }
-    }
-    public boolean actualizar(Doctor doc) {
-        String sql = "UPDATE doctores SET nombre = ?, apellidos = ?, especialidad = ?, cedula = ?, ruta_foto = ? WHERE id_doctor = ?";
-        try (Connection con = Conexion.conectar()) {
-            if (con == null) return false;
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setString(1, doc.getNombre());
-                ps.setString(2, doc.getApellidos());
-                ps.setString(3, doc.getEspecialidad());
-                ps.setString(4, doc.getCedula());
-                ps.setString(5, doc.getRutaFoto());
-                ps.setInt(6, doc.getIdDoctor());
-                return ps.executeUpdate() > 0;
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al actualizar doctor: " + e.getMessage());
-            return false;
-        }
-    }
-
-    public ObservableList<Doctor> obtenerTodos() {
-        ObservableList<Doctor> lista = FXCollections.observableArrayList();
-        String sql = "SELECT * FROM doctores";
-        try (Connection con = Conexion.conectar()) {
-            if (con == null) return lista;
-            try (PreparedStatement ps = con.prepareStatement(sql);
-                 ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Doctor d = new Doctor();
-                    d.setIdDoctor(rs.getInt("id_doctor"));
-                    d.setNombre(rs.getString("nombre"));
-                    d.setApellidos(rs.getString("apellidos"));
-                    d.setEspecialidad(rs.getString("especialidad"));
-                    d.setCedula(rs.getString("cedula"));
-                    d.setRutaFoto(rs.getString("ruta_foto"));
-                    lista.add(d);
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al listar doctores: " + e.getMessage());
-        }
-        return lista;
     }
 }
